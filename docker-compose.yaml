@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  users_backend:
+    build:
+      args:
+        user: user
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: users_backend
+    container_name: users_ms
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    depends_on:
+      users_db:
+        condition: service_healthy
+    networks:
+      - users
+    env_file: .env
+    user: user
+
+  users_db:
+    image: mysql:8
+    container_name: users_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./storage/dbdata:/var/lib/mysql
+    networks:
+      - users
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "3307:3306"  # Changed from 3306:3306 to use port 3307 instead
+
+  nginx:
+    image: nginx:alpine
+    container_name: users_nginx
+    restart: unless-stopped
+    ports:
+      - 8001:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - users
+    depends_on:
+      - users_backend
+
+networks:
+  users:
+    name: users
