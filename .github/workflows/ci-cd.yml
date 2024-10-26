@@ -9,7 +9,7 @@ on:
       - 'Dockerfile'
       - 'docker-compose.yml'
       - '.github/workflows/**'
-      - 'nginx/**'
+      - 'docker-compose/nginx/**'
       - '.env'
   pull_request:
     branches:
