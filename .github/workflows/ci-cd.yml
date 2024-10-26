@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**.php'
-      - 'Dockerfile'
-      - 'docker-compose.yml'
-      - '.github/workflows/**'
-      - 'docker-compose/nginx/**'
-      - '.env'
   pull_request:
     branches:
       - main
